@@ -2,6 +2,7 @@
 
 
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 class TodoListToday extends StatefulWidget
 {
@@ -16,7 +17,7 @@ class _TodoListTodayState extends State<TodoListToday>
 {
 
   bool _isChecked = false;
-
+  String today = DateFormat('yyyy-MM-dd').format(DateTime.now()).toString();
   void  _checkBox()
   {
 
@@ -226,16 +227,33 @@ class _TodoListTodayState extends State<TodoListToday>
   
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      //appBar:
-      body:
-      ListView
+    return Column(
 
-        (
-        scrollDirection: Axis.vertical,
-        children: listTask.map((task) => task).toList() ,
+      mainAxisAlignment: MainAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.start,
 
-      ),
+      children: [
+
+        Padding(
+            padding: EdgeInsets.all(5.0)  ,
+            child:Text(
+                  today ,
+                  style: const TextStyle(
+                  fontSize: 20,
+                  color: Colors.redAccent,
+        ),) ),
+
+        const Divider(
+          height: 2,
+          thickness: 1,
+        ),
+        Expanded(child:
+        ListView(
+          scrollDirection: Axis.vertical,
+          children: listTask.map((task) => task).toList() ,),)
+
+      ]
+
     );
   }
   

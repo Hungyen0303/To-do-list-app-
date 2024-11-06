@@ -14,10 +14,59 @@ class Search extends StatefulWidget
 
 class _SearchState extends State<Search>
 {
+  bool isDark = false;
   @override
   Widget build(BuildContext context) {
-    return const Center(
-      child: Text('123'),
+    return Column(
+
+      crossAxisAlignment: CrossAxisAlignment.start ,
+      mainAxisAlignment: MainAxisAlignment.start,
+      children: [
+        SearchAnchor(
+            builder: (BuildContext context, SearchController controller) {
+              return SearchBar(
+                controller: controller,
+                padding: const MaterialStatePropertyAll<EdgeInsets>(
+                    EdgeInsets.symmetric(horizontal: 16.0)),
+                onTap: () {
+                  controller.openView();
+                },
+                onChanged: (_) {
+                  controller.openView();
+                },
+                leading: const Icon(Icons.search),
+                trailing: <Widget>[
+                  Tooltip(
+                    message: 'Change brightness mode',
+                    child: IconButton(
+                      isSelected: isDark,
+                      onPressed: () {
+                        setState(() {
+                          isDark = !isDark;
+                        });
+                      },
+                      icon: const Icon(Icons.wb_sunny_outlined),
+                      selectedIcon: const Icon(Icons.brightness_2_outlined),
+                    ),
+                  )
+                ],
+              );
+            }, suggestionsBuilder:
+            (BuildContext context, SearchController controller) {
+          return List<ListTile>.generate(5, (int index) {
+            final String item = 'item $index';
+            return ListTile(
+              title: Text(item),
+              onTap: () {
+                setState(() {
+                  controller.closeView(item);
+                });
+              },
+            );
+          });
+        })
+        
+      ],
     );
   }
   

@@ -17,6 +17,7 @@ class TodoListToday extends StatelessWidget {
         {
             final task = taskModel.tasks[index];
             final today = DateFormat('yyyy-MM-dd').format(DateTime.now());
+
             if (task.dueDate == today) {
               return task;
         } else {

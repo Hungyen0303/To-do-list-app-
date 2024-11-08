@@ -12,7 +12,24 @@ class TaskModel extends ChangeNotifier {
       dueTime: '10:00 PM',
       isDone: false,
       onRemoveTask: () {
-
+      },
+    ),
+    TaskBar(
+      task: 'Do homework',
+      descriptions: 'Complete math homework by 10 PM',
+      dueDate: '2024-11-08',
+      dueTime: '11:48 PM',
+      isDone: false,
+      onRemoveTask: () {
+      },
+    ),
+    TaskBar(
+      task: 'Do homework',
+      descriptions: 'Complete math homework by 10 PM',
+      dueDate: '2024-11-08',
+      dueTime: '11:52 PM',
+      isDone: false,
+      onRemoveTask: () {
       },
     ),
     TaskBar(
@@ -54,7 +71,8 @@ class TaskModel extends ChangeNotifier {
   }
 
   void removeTask(TaskBar task) {
-    tasks.remove(task);
+    tasks.removeWhere((item) => item.task == task.task && item.dueDate == task.dueDate);
     notifyListeners();
   }
+
 }

@@ -16,10 +16,19 @@ class UpcomingTodoList extends StatelessWidget {
           itemBuilder: (context, index)
           {
             final task = taskModel.tasks[index];
-            final today = DateFormat('yyyy-MM-dd').format(DateTime.now());
-            if (task.dueDate != today) {
+            final today = DateTime.now();
+
+            if (task.dueDate.isNotEmpty){
+            final dueDate = DateFormat('yyyy-MM-dd').parse(task.dueDate);
+
+            if (task.dueDate.isNotEmpty && dueDate.isAfter(today) && task.dueDate!=""  ) {
               return task;
-            } else {
+            }
+            else {
+              return const SizedBox.shrink();
+            }
+            }
+            else {
               return const SizedBox.shrink();
             }
           },

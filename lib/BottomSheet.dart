@@ -126,11 +126,11 @@ class _AddTaskBottomSheetState extends State<AddTaskBottomSheet> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  TextButton(
+                  ElevatedButton(
                     onPressed: () {
                         widget.onChangeTask();
                     },
-                    child: const Text('Create'),
+                    child: const Text('Save'),
                   ),
                   ElevatedButton(
                     onPressed: () => Navigator.pop(context),

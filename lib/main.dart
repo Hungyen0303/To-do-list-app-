@@ -1,24 +1,30 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'AllTodoList.dart';
+import 'BottomSheet.dart';
 import 'Search.dart';
+import 'TaskBar.dart';
+import 'TaskModel.dart';
 import 'Today.dart';
-import 'package:todolistapp/Upcoming.dart';
+import 'Upcoming.dart';
+
 void main() {
-  runApp(const MyApp());
+  runApp(
+    ChangeNotifierProvider(
+      create: (context) => TaskModel(),
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-
-
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Todo App',
       debugShowCheckedModeBanner: false,
-
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
@@ -35,53 +41,95 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-
-  List<Widget> destinations = [
-    TodoListToday() ,
-    UpcomingTodoList() ,
-    AllTodoList() ,
-    Search() ];
-  List<String> titles = ["Today" , "Upcoming" , 'All' , 'Search'] ;
+  List<String> titles = ["Today", "Upcoming", 'All', 'Search'];
   int currentPageIndex = 0;
 
   @override
   Widget build(BuildContext context) {
+    TextEditingController _dateController = TextEditingController();
+    TextEditingController _timeController = TextEditingController();
+    TextEditingController _taskController = TextEditingController();
+    TextEditingController _descriptionController = TextEditingController();
+    final taskModel = Provider.of<TaskModel>(context, listen: false);
+
+    void _createTask() {
+      if (_taskController.text.isEmpty) {
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: const Text('Invalid Task'),
+              content: const Text('Please fill out the task field.'),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('OK'),
+                ),
+              ],
+            );
+          },
+        );
+        return;
+      }
+
+      setState(() {
+        taskModel.addTask(
+          TaskBar(
+            task: _taskController.text,
+            descriptions: _descriptionController.text,
+            dueDate: _dateController.text,
+            dueTime: _timeController.text,
+            isDone: false,
+            onRemoveTask: () {
+
+            },
+          ),
+        );
+      });
+
+      _taskController.clear();
+      _descriptionController.clear();
+      _dateController.clear();
+      _timeController.clear();
+
+      Navigator.pop(context);
+    }
+
+
+
+
+
     return Scaffold(
       appBar: AppBar(
-        title: Text( titles[currentPageIndex],
+        title: Text(
+          titles[currentPageIndex],
           style: const TextStyle(
-          fontSize: 30,
-          fontWeight: FontWeight.w700,
-        ), ),
+            fontSize: 30,
+            fontWeight: FontWeight.w700,
+          ),
+        ),
         backgroundColor: Colors.redAccent,
         foregroundColor: Colors.white,
-
       ),
       floatingActionButton: FloatingActionButton(
         backgroundColor: Colors.redAccent,
         onPressed: () {
           showModalBottomSheet<void>(
+            isScrollControlled: true,
             context: context,
             builder: (BuildContext context) {
-              return Container(
-                height: 200,
-                color: Colors.amber,
-                child: Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    mainAxisSize: MainAxisSize.min,
-                    children: <Widget>[
-                      const Text('Modal BottomSheet'),
-                      ElevatedButton(
-                        child: const Text('Close BottomSheet'),
-                        onPressed: () => Navigator.pop(context),
-                      ),
-                    ],
-                  ),
-                ),
+              return AddTaskBottomSheet(
+                taskController: _taskController,
+                descriptionController: _descriptionController,
+                dateController: _dateController,
+                timeController: _timeController,
+                onChangeTask: _createTask,
+
+
               );
             },
           );
+
         },
         child: const Icon(Icons.add),
       ),
@@ -95,12 +143,11 @@ class _MyHomePageState extends State<MyHomePage> {
         selectedIndex: currentPageIndex,
         destinations: const <Widget>[
           NavigationDestination(
-            selectedIcon: Icon(Icons.abc_outlined),
-            icon: Icon(Icons.home_outlined),
+            icon: Icon(Icons.today_outlined),
             label: 'Today',
           ),
           NavigationDestination(
-            icon: Badge(child: Icon(Icons.notifications_sharp)),
+            icon: Badge(child: Icon(Icons.event)),
             label: 'Upcoming',
           ),
           NavigationDestination(
@@ -116,8 +163,12 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
         ],
       ),
-      body:
-      destinations[currentPageIndex] ,
+      body: [
+        TodoListToday(),
+        UpcomingTodoList(),
+        AllTodoList(),
+        Search(),
+      ][currentPageIndex],
     );
   }
 }

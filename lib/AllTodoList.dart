@@ -16,8 +16,7 @@ class AllTodoList extends StatelessWidget {
           itemCount: taskModel.tasks.length,
           itemBuilder: (context, index)
           {
-            final task = taskModel.tasks[index];
-              return task;
+              return taskModel.tasks[index];
           },
         );
       },

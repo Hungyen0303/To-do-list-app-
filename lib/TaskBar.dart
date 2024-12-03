@@ -82,6 +82,21 @@ class _TaskbarState extends State<TaskBar> {
     _timeController.text = widget.dueTime;
     _descriptionController.text = widget.descriptions;
 
+    bool isOverDue() {
+      if (widget.dueDate != null) {
+        final parsedDate = DateFormat('yyyy-MM-dd').parse(widget.dueDate);
+        if (widget.dueTime != null) {
+          final parsedTime = DateFormat('HH:mm a').parse(widget.dueTime);
+          return parsedDate.isBefore(DateTime.now()) &&
+              parsedTime.isBefore(DateTime.now());
+
+        }
+        return parsedDate.isBefore(DateTime.now());
+      }
+        else
+          return false;
+      }
+
     void _updateTask(String originalTask, String originalDate, String originalTime) {
       setState(() {
         final taskToRemove = taskModel.tasks.firstWhere(
@@ -176,7 +191,11 @@ class _TaskbarState extends State<TaskBar> {
           icon: const Icon(Icons.more_vert),
         ),
         subtitle: Text(
-          widget.dueTime + " " + widget.dueDate,
+          "${widget.dueTime} ${widget.dueDate}",
+
+          style: isOverDue() ? const TextStyle(
+            color: Colors.red
+          ) :const  TextStyle(color: Colors.black),
         ),
         leading: Checkbox(
           shape: const RoundedRectangleBorder(

@@ -81,7 +81,7 @@ class _MyHomePageState extends State<MyHomePage> {
     final taskModel = Provider.of<TaskModel>(context, listen: false);
 
     DateTime _parseDueDateTime(String dueDate, String dueTime) {
-      final parsedDate = DateFormat('dd/MM/yyyy').parse(dueDate);
+      final parsedDate = DateFormat('dd-MM-yyyy').parse(dueDate);
       final parsedTime = DateFormat('hh:mm a').parse(dueTime);
       return DateTime(
         parsedDate.year,

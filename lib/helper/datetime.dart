@@ -13,11 +13,11 @@ class DateTimeHelper {
 
   static String getTimeAsString() {
     DateTime time = DateTime.now();
-    return DateFormat('HH:mm a').format(time);
+    return DateFormat('HH:mm').format(time);
   }
 
   static String getSomeTimeAsString(int minute) {
     DateTime sometime = DateTime.now().add(Duration(minutes: minute));
-    return DateFormat('HH:mm a').format(sometime);
+    return DateFormat('HH:mm').format(sometime);
   }
 }

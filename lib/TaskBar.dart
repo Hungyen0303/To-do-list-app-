@@ -7,6 +7,7 @@ import 'package:timezone/timezone.dart' as tz;
 
 import 'BottomSheet.dart';
 import 'TaskModel.dart';
+import 'helper/datetime.dart';
 import 'notification_service.dart';
 
 class TaskBar extends StatefulWidget {
@@ -34,26 +35,9 @@ class TaskBar extends StatefulWidget {
 class _TaskbarState extends State<TaskBar> {
   bool _checkBox = false;
 
-  void _scheduleNotification() {
-    if (widget.dueTime.isNotEmpty && widget.dueDate.isNotEmpty){
-    final DateTime dueDateTime = _parseDueDateTime(widget.dueDate, widget.dueTime);
-
-    if (dueDateTime.isAfter(DateTime.now())) {
-      LocalNotifications.showScheduleNotification(
-        notificationId: DateTime.now().millisecondsSinceEpoch,
-        channel: 'task_notifications',
-        title: 'Upcoming Task',
-        body: widget.task,
-        payload: 'Task: ${widget.task}, Due: ${widget.dueDate} ${widget.dueTime}',
-        dueDate: dueDateTime,
-      );
-    }
-    }
-  }
-
   DateTime _parseDueDateTime(String dueDate, String dueTime) {
     final parsedDate = DateFormat('yyyy-MM-dd').parse(dueDate);
-    final parsedTime = DateFormat('hh:mm a').parse(dueTime);
+    final parsedTime = DateFormat('hh:mm').parse(dueTime);
     return DateTime(
       parsedDate.year,
       parsedDate.month,
@@ -61,13 +45,18 @@ class _TaskbarState extends State<TaskBar> {
       parsedTime.hour,
       parsedTime.minute,
     );
+  }
 
+  void showSchduledNotification() {
+    if (DateTimeHelper.getTodayAsString() == widget.dueDate && widget.dueTime != null) {
+      LocalNotification.showSchduledNotification(widget.task , widget.dueTime);
+    }
   }
 
   @override
   void initState() {
     super.initState();
-    _scheduleNotification();
+    showSchduledNotification();
   }
 
   @override
@@ -86,21 +75,23 @@ class _TaskbarState extends State<TaskBar> {
       if (widget.dueDate != null) {
         final parsedDate = DateFormat('yyyy-MM-dd').parse(widget.dueDate);
         if (widget.dueTime != null) {
-          final parsedTime = DateFormat('HH:mm a').parse(widget.dueTime);
+          final parsedTime = DateFormat('HH:mm').parse(widget.dueTime);
           return parsedDate.isBefore(DateTime.now()) &&
               parsedTime.isBefore(DateTime.now());
-
         }
         return parsedDate.isBefore(DateTime.now());
-      }
-        else
-          return false;
-      }
+      } else
+        return false;
+    }
 
-    void _updateTask(String originalTask, String originalDate, String originalTime) {
+    void _updateTask(
+        String originalTask, String originalDate, String originalTime) {
       setState(() {
         final taskToRemove = taskModel.tasks.firstWhere(
-              (t) => t.task == originalTask && t.dueDate == originalDate && t.dueTime == originalTime,
+          (t) =>
+              t.task == originalTask &&
+              t.dueDate == originalDate &&
+              t.dueTime == originalTime,
         );
 
         if (taskToRemove != null) {
@@ -192,10 +183,9 @@ class _TaskbarState extends State<TaskBar> {
         ),
         subtitle: Text(
           "${widget.dueTime} ${widget.dueDate}",
-
-          style: isOverDue() ? const TextStyle(
-            color: Colors.red
-          ) :const  TextStyle(color: Colors.black),
+          style: isOverDue()
+              ? const TextStyle(color: Colors.red)
+              : const TextStyle(color: Colors.black),
         ),
         leading: Checkbox(
           shape: const RoundedRectangleBorder(
@@ -211,7 +201,9 @@ class _TaskbarState extends State<TaskBar> {
         title: Text(
           widget.task,
           style: TextStyle(
-            decoration: widget.isDone ? TextDecoration.lineThrough : TextDecoration.none,
+            decoration: widget.isDone
+                ? TextDecoration.lineThrough
+                : TextDecoration.none,
           ),
         ),
       ),

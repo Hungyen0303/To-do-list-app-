@@ -1,4 +1,7 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 class AddTaskBottomSheet extends StatefulWidget {
   final TextEditingController taskController;
@@ -30,7 +33,7 @@ class _AddTaskBottomSheetState extends State<AddTaskBottomSheet> {
     );
     if (picked != null) {
       setState(() {
-        widget.dateController.text = "${picked.year}-${picked.month}-${picked.day}";
+        widget.dateController.text = DateFormat("yyyy-MM-dd").format(DateTime( picked.year, picked.month , picked.day));
       });
     }
   }
@@ -42,10 +45,12 @@ class _AddTaskBottomSheetState extends State<AddTaskBottomSheet> {
     );
     if (picked != null) {
       setState(() {
-        widget.timeController.text = picked.format(context);
+        final formattedTime = '${picked.hour.toString().padLeft(2, '0')}:${picked.minute.toString().padLeft(2, '0')}';
+        widget.timeController.text = formattedTime;
       });
     }
   }
+
 
   @override
   Widget build(BuildContext context) {

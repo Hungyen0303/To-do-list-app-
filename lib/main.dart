@@ -12,26 +12,14 @@ import 'Upcoming.dart';
 import 'notification_service.dart';
 
 FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
-FlutterLocalNotificationsPlugin();
+    FlutterLocalNotificationsPlugin();
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await LocalNotifications.init();
-
-  await flutterLocalNotificationsPlugin.initialize(
-    InitializationSettings(
-      android: AndroidInitializationSettings('@mipmap/ic_launcher'),
-
-    ),
-  );
-
-  var initialNotification = await flutterLocalNotificationsPlugin.getNotificationAppLaunchDetails();
-  // if (initialNotification?.didNotificationLaunchApp == true) {
-  //   Future.delayed(Duration(seconds: 1), () {
-  //     navigatorKey.currentState!.pushNamed('/another',
-  //         arguments: initialNotification?.notificationResponse?.payload);
-  //   });
-  // }
+  await Future.wait([
+    LocalNotification.init(),
+    // WorkManagerService().init(),
+  ]);
 
   runApp(
     ChangeNotifierProvider(
@@ -60,6 +48,7 @@ class MyApp extends StatelessWidget {
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key});
+
   @override
   State<MyHomePage> createState() => _MyHomePageState();
 }
@@ -67,11 +56,29 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   List<String> titles = ["Today", "Upcoming", 'All', 'Search'];
   int currentPageIndex = 0;
+
   @override
   void initState() {
+    listenToNotificationStream();
     super.initState();
-    LocalNotifications.init();
   }
+
+  void listenToNotificationStream() {
+    LocalNotification.streamController.stream.listen(
+      (notificationResponse) {
+        //logic to get product from database.
+        // Navigator.push(
+        //   context,
+        //   MaterialPageRoute(
+        //     builder: (_) => NotificationDetailsScreen(
+        //       response: notificationResponse,
+        //     ),
+        //   ),
+        // );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     TextEditingController _dateController = TextEditingController();
@@ -91,6 +98,7 @@ class _MyHomePageState extends State<MyHomePage> {
         parsedTime.minute,
       );
     }
+
     void _createTask() {
       if (_taskController.text.isEmpty) {
         showDialog(
@@ -110,19 +118,7 @@ class _MyHomePageState extends State<MyHomePage> {
         );
         return;
       }
-      // final DateTime dueDateTime = _parseDueDateTime(
-      //   _dateController.text,
-      //   _timeController.text,
-      // );
 
-      // final DateTime notificationTime = dueDateTime.subtract(const Duration(minutes: 10));
-      // if (notificationTime.isAfter(DateTime.now())) {
-      //   NotificationService.scheduleNotification(
-      //     title: 'Upcoming Task',
-      //     body: _taskController.text,
-      //     scheduledTime: notificationTime,
-      //   );
-      // }
       setState(() {
         taskModel.addTask(
           TaskBar(
@@ -131,9 +127,7 @@ class _MyHomePageState extends State<MyHomePage> {
             dueDate: _dateController.text,
             dueTime: _timeController.text,
             isDone: false,
-            onRemoveTask: () {
-
-            },
+            onRemoveTask: () {},
           ),
         );
       });
@@ -145,16 +139,6 @@ class _MyHomePageState extends State<MyHomePage> {
 
       Navigator.pop(context);
     }
-
-
-    void sendTestNotification() {
-      LocalNotifications.showSimpleNotification(
-        title: "Test Notification",
-        body: "This is a test notification sent from the button.",
-        payload: "Test Payload",
-      );
-    }
-
 
 
     return Scaffold(
@@ -182,12 +166,9 @@ class _MyHomePageState extends State<MyHomePage> {
                 dateController: _dateController,
                 timeController: _timeController,
                 onChangeTask: _createTask,
-
-
               );
             },
           );
-
         },
         child: const Icon(Icons.add),
       ),
@@ -221,17 +202,11 @@ class _MyHomePageState extends State<MyHomePage> {
         ],
       ),
       body:
-      // Center(
-      //   child: ElevatedButton(
-      //     onPressed: sendTestNotification,
-      //     child: const Text('Send Notification'),
-      //   ),
-      // ),
       [
-        TodoListToday(),
-        UpcomingTodoList(),
-        AllTodoList(),
-        Search(),
+        const TodoListToday(),
+        const UpcomingTodoList(),
+        const AllTodoList(),
+        const Search(),
       ][currentPageIndex],
     );
   }
